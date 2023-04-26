@@ -3,7 +3,7 @@ import numpy as np
 from numpy import loadtxt
 
 env = gym.make('FrozenLake-v1',map_name="8x8", render_mode='ansi').env
-q_table = loadtxt('data/q-table-frozen-lake-qlearning.csv', delimiter=',')
+q_table = loadtxt('data/q-table-frozen-lake-sarsa.csv', delimiter=',')
 
 rewards = 0
 

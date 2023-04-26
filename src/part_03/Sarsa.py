@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import random
 from numpy import savetxt
 import sys
@@ -23,7 +24,8 @@ class Sarsa:
         return np.argmax(self.q_table[state]) # Exploit learned values
 
     def train(self, filename, plotFile):
-        actions_per_episode = []
+        rewards_plot = []
+        episodes_plot = []
         for i in range(1, self.episodes+1):
             (state, _) = self.env.reset()
             rewards = 0
@@ -38,13 +40,17 @@ class Sarsa:
                 next_value = self.q_table[next_state, next_action]
                 new_value = old_value + self.alpha*(reward + self.gamma*next_value - old_value)
                 self.q_table[state, action] = new_value
-                
+
                 state = next_state
                 action = next_action
                 actions=actions+1
-                rewards=rewards+reward
-
-            actions_per_episode.append(actions)
+                rewards=rewards-1
+            if reward > 0:
+                rewards += 1000
+            else:
+                rewards -= 1000  
+            rewards_plot.append(rewards)
+            episodes_plot.append(i)
             if i % 100 == 0:
                 sys.stdout.write("Episodes: " + str(i) +'\r')
                 sys.stdout.flush()
@@ -53,13 +59,16 @@ class Sarsa:
                 self.epsilon = self.epsilon * self.epsilon_dec
 
         savetxt(filename, self.q_table, delimiter=',')
-        if (plotFile is not None): self.plotactions(plotFile, actions_per_episode)
+        if (plotFile is not None): self.plotactions(plotFile, rewards_plot, episodes_plot)
         return self.q_table
 
-    def plotactions(self, plotFile, actions_per_episode):
-        plt.plot(actions_per_episode)
+    def plotactions(self, plotFile, rewards_plot, episodes_plot):
+        plt.plot(episodes_plot, rewards_plot)
+        dict = {"episodes":episodes_plot,"rewards": rewards_plot}
+        df = pd.DataFrame(dict)
+        df.to_csv("sarsa_plotdata.csv")
         plt.xlabel('Episodes')
-        plt.ylabel('# Actions')
-        plt.title('# Actions vs Episodes')
+        plt.ylabel('Rewards')
+        plt.title('Episodes vs Rewards (Sarsa Algorithm)')
         plt.savefig(plotFile+".jpg")     
         plt.close()
