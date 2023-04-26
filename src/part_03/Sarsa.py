@@ -4,12 +4,7 @@ from numpy import savetxt
 import sys
 import matplotlib.pyplot as plt
 
-#
-# This class implements the Q-Learning algorithm.
-# We can use this implementation to solve Toy text environments from Gym project. 
-#
-
-class QLearning:
+class Sarsa:
 
     def __init__(self, env, alpha, gamma, epsilon, epsilon_min, epsilon_dec, episodes):
         self.env = env
@@ -34,18 +29,18 @@ class QLearning:
             rewards = 0
             done = False
             actions = 0
-
+            action = self.select_action(state) # selecione a primeira ação
             while not done:
-                action = self.select_action(state)
-                next_state, reward, done, truncated, _ = self.env.step(action) 
-        
-                # Adjust Q value for current state
-                old_value = self.q_table[state,action] #pegar o valor na q-table para a combinacao action e state
-                next_max = np.max(self.q_table[next_state]) #np.max(`do maior valor considerando next_state`)
-                new_value = old_value + self.alpha*(reward + self.gamma *next_max - old_value)
+                next_state, reward, done, truncated, _ = self.env.step(action)
+                next_action = self.select_action(next_state) # selecione a próxima ação
+
+                old_value = self.q_table[state, action]
+                next_value = self.q_table[next_state, next_action]
+                new_value = old_value + self.alpha*(reward + self.gamma*next_value - old_value)
                 self.q_table[state, action] = new_value
-                # atualiza para o novo estado
+                
                 state = next_state
+                action = next_action
                 actions=actions+1
                 rewards=rewards+reward
 

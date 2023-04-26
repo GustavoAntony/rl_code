@@ -4,13 +4,10 @@ IPython
 matplotlib
 numpy
 pygame
-box2d-py
 swig
 
 # parte 5 em diante
-tensorflow
 pandas
-torch
 
 
 
